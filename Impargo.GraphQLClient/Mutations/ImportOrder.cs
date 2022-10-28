@@ -17,16 +17,17 @@ public record CompanyOrder
 public record Order
 {
     public string Reference { get; set; }
-    
+
     public Route Route { get; set; }
 }
 
-public record Route {
-    
+public record Route
+{
+
     public float Distance { get; set; }
 
     public float Time { get; set; }
-    
+
     public RouteDetails RouteDetails { get; set; }
 }
 

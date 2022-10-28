@@ -6,53 +6,53 @@ using Impargo.GraphQLClient.Mutations;
 using Impargo.GraphQLClient.Queries;
 using Microsoft.Extensions.Configuration;
 
-try
+// initialize configuration
+
+IConfiguration configuration = new ConfigurationBuilder()
+    .AddJsonFile("appsettings.json")
+    .AddEnvironmentVariables()
+    .Build();
+
+var apiOptions = new ImpargoApiOptions();
+configuration?.GetSection("Impargo").Bind(apiOptions);
+
+// create GraphQL client
+var graphqlEndpoint = new Uri(new Uri(apiOptions.BaseUrl), "graphql");
+using var client = new GraphQLHttpClient(apiOptions.BaseUrl, new SystemTextJsonSerializer()
 {
-    // initialize configuration
-    
-    IConfiguration configuration = new ConfigurationBuilder()
-        .AddJsonFile("appsettings.json")
-        .AddEnvironmentVariables()
-        .Build();
-
-    var apiOptions = new ImpargoApiOptions();
-    configuration?.GetSection("Impargo").Bind(apiOptions);
-
-    // create GraphQL client
-    var graphqlEndpoint = new Uri(new Uri(apiOptions.BaseUrl), "graphql");
-    using var client = new GraphQLHttpClient(apiOptions.BaseUrl, new SystemTextJsonSerializer()
-    {
-        Options =
+    Options =
         {
             PropertyNameCaseInsensitive = true,
         }
-    });
-    client.HttpClient.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
-    
-    // add authentication token to all HTTP requests
-    client.HttpClient.DefaultRequestHeaders.Add("authorization", apiOptions.AuthenticationToken);
+});
+client.HttpClient.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
 
-    #region GetCompany query
+// add authentication token to all HTTP requests
+client.HttpClient.DefaultRequestHeaders.Add("authorization", apiOptions.AuthenticationToken);
 
-    
-    var getCompanyQuery = new GraphQLHttpRequest()
+#region GetCompany query
+
+
+var getCompanyQuery = new GraphQLHttpRequest()
+{
+    Query = @"query { company { _id company email } }"
+};
+
+var getCompanyQueryResult = await client.SendQueryAsync<GetCompanyResponseType>(getCompanyQuery);
+Console.WriteLine($"{getCompanyQueryResult.Data.Company}");
+#endregion
+
+#region Simple ImportOrder mutation
+
+var simpleImportOrderMutation = new GraphQLHttpRequest()
+{
+    Query = @"mutation ImportOrder($data: OrderImportInput!) { importOrder(data: $data) { _id company order { reference route { distance time } } } }",
+    OperationName = "ImportOrder",
+    Variables = new
     {
-        Query = @"query { company { _id company email createdAt } }"
-    };
-
-    var getCompanyQueryResult = await client.SendQueryAsync<GetCompanyResponseType>(getCompanyQuery);
-    Console.WriteLine($"{getCompanyQueryResult.Data.Company}");
-    #endregion
-    
-    #region Simple ImportOrder mutation
-    
-    var simpleImportOrderMutation = new GraphQLHttpRequest()
-    {
-        Query = @"mutation ImportOrder($data: OrderImportInput!) { importOrder(data: $data) { _id company order { reference route { distance time } } } }",
-        OperationName = "ImportOrder",
-        Variables = new {
-            data = new {
-                stops = new [] {
+        data = new
+        {
+            stops = new[] {
                     new {
                         location = new {
                             city = "Berlin"
@@ -64,20 +64,20 @@ try
                         }
                     }
                 }
-            }
-        }    
-    };
-    var simpleImportOrderMutationResult = await client.SendMutationAsync<ImportOrderResponseType>(simpleImportOrderMutation);
-    Console.WriteLine($"{simpleImportOrderMutationResult.Data.ImportOrder}");
+        }
+    }
+};
+var simpleImportOrderMutationResult = await client.SendMutationAsync<ImportOrderResponseType>(simpleImportOrderMutation);
+Console.WriteLine($"{simpleImportOrderMutationResult.Data.ImportOrder}");
 
-    
-    #endregion
 
-    #region ImportOrder mutation with Toll details
+#endregion
 
-    var importOrderWithTollDetailsMutation = new GraphQLHttpRequest()
-    {
-        Query = @"mutation ImportOrder($data: OrderImportInput!) { importOrder(data: $data) { _id
+#region ImportOrder mutation with Toll details
+
+var importOrderWithTollDetailsMutation = new GraphQLHttpRequest()
+{
+    Query = @"mutation ImportOrder($data: OrderImportInput!) { importOrder(data: $data) { _id
     order {
       route {
         distance
@@ -98,10 +98,12 @@ try
         }
       }
     } } }",
-        OperationName = "ImportOrder",
-        Variables = new {
-            data = new {
-                stops = new [] {
+    OperationName = "ImportOrder",
+    Variables = new
+    {
+        data = new
+        {
+            stops = new[] {
                     new {
                         location = new {
                             city = "Berlin"
@@ -113,32 +115,34 @@ try
                         }
                     }
                 }
-            }
-        }    
-    };
-    var importOrderWithTollDetailsMutationResult = await client.SendMutationAsync<ImportOrderResponseType>(importOrderWithTollDetailsMutation);
-    Console.WriteLine($"{importOrderWithTollDetailsMutationResult.Data.ImportOrder}");
+        }
+    }
+};
+var importOrderWithTollDetailsMutationResult = await client.SendMutationAsync<ImportOrderResponseType>(importOrderWithTollDetailsMutation);
+Console.WriteLine($"{importOrderWithTollDetailsMutationResult.Data.ImportOrder}");
 
-    #endregion
+#endregion
 
-    #region ImportOrder mutation with additional stop
-    
-    var importOrderWithAdditionalStopMutation = new GraphQLHttpRequest()
+#region ImportOrder mutation with additional stop
+
+var importOrderWithAdditionalStopMutation = new GraphQLHttpRequest()
+{
+    Query =
+        @"mutation ImportOrder($data: OrderImportInput!) { importOrder(data: $data) { _id company order { reference route { distance time } } } }",
+    OperationName = "ImportOrder",
+    Variables = new
     {
-        Query =
-            @"mutation ImportOrder($data: OrderImportInput!) { importOrder(data: $data) { _id company order { reference route { distance time } } } }",
-        OperationName = "ImportOrder",
-        Variables = new {
-            data = new {
-                reference = "Ref XYZ",
-                load = new
-                {
-                    bodyType = "TENT",
-                    equipmentExchange = false,
-                    length = 13.6,
-                    weight = 24
-                },
-                stops = new object[] {
+        data = new
+        {
+            reference = "Ref XYZ",
+            load = new
+            {
+                bodyType = "TENT",
+                equipmentExchange = false,
+                length = 13.6,
+                weight = 24
+            },
+            stops = new object[] {
                     new {
                         location = new {
                             city = "Berlin, Willsnackerstr. 33",
@@ -184,16 +188,10 @@ try
                         }
                     }
                 }
-            }
         }
-    };
-    var importOrderWithAdditionalStopMutationResult = await client.SendMutationAsync<ImportOrderResponseType>(importOrderWithAdditionalStopMutation);
-    Console.WriteLine($"{importOrderWithAdditionalStopMutationResult.Data.ImportOrder}");
-    
-    #endregion
-}
-catch (Exception ex)
-{
-    Console.WriteLine(ex.Message);
-    throw;
-}
+    }
+};
+var importOrderWithAdditionalStopMutationResult = await client.SendMutationAsync<ImportOrderResponseType>(importOrderWithAdditionalStopMutation);
+Console.WriteLine($"{importOrderWithAdditionalStopMutationResult.Data.ImportOrder}");
+
+#endregion

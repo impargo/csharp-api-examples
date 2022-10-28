@@ -14,6 +14,6 @@ public record Company
 
     [JsonPropertyName("company")]
     public string CompanyName { get; set; }
-    
+
     public DateTimeOffset CreatedAt { get; set; }
 }
