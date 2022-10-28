@@ -44,7 +44,7 @@ try
     Console.WriteLine($"{getCompanyQueryResult.Data.Company}");
     #endregion
     
-    #region Example with simple ImportOrder mutation
+    #region Simple ImportOrder mutation
     
     var simpleImportOrderMutation = new GraphQLHttpRequest()
     {
@@ -73,7 +73,7 @@ try
     
     #endregion
 
-    #region Example for ImportOrder mutation with Toll details
+    #region ImportOrder mutation with Toll details
 
     var importOrderWithTollDetailsMutation = new GraphQLHttpRequest()
     {
