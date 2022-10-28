@@ -2,19 +2,15 @@ using System.Text.Json.Serialization;
 
 namespace Impargo.GraphQLClient.Mutations;
 
-public abstract class Entity
-{
-    [JsonPropertyName("_id")]
-    public string Id { get; set; }
-}
-
 public record ImportOrderResponseType
 {
     public CompanyOrder ImportOrder { get; set; }
 }
 
-public class CompanyOrder: Entity
+public record CompanyOrder
 {
+    [JsonPropertyName("_id")]
+    public string Id { get; set; }
     public Order Order { get; set; }
 }
 
@@ -34,8 +30,10 @@ public record Route {
     public RouteDetails RouteDetails { get; set; }
 }
 
-public class RouteDetails: Entity
+public class RouteDetails
 {
+    [JsonPropertyName("_id")]
+    public string Id { get; set; }
     public Toll Tolls { get; set; }
 }
 
