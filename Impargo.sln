@@ -1,0 +1,16 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Impargo.GraphQLClient", "Impargo.GraphQLClient\Impargo.GraphQLClient.csproj", "{5704EBC5-6A61-44CF-96C6-1207B7D22633}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{5704EBC5-6A61-44CF-96C6-1207B7D22633}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{5704EBC5-6A61-44CF-96C6-1207B7D22633}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{5704EBC5-6A61-44CF-96C6-1207B7D22633}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{5704EBC5-6A61-44CF-96C6-1207B7D22633}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+EndGlobal
